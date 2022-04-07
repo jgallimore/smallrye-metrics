@@ -12,6 +12,15 @@ import io.smallrye.metrics.SmallRyeMetricsLogging;
 import io.smallrye.metrics.SmallRyeMetricsMessages;
 import io.smallrye.metrics.elementdesc.MemberInfo;
 
+/**
+ * This class represents mappings between Java methods and the set of metric IDs
+ * associated with them. This is computed once at boot/build time to avoid having to
+ * do runtime reflection on every invocation of the relevant methods.
+ *
+ * This class does NOT use thread-safe map implementations, so populating the mappings
+ * must only be performed by one thread. Querying the mappings later at runtime can be done
+ * concurrently.
+ */
 public class MemberToMetricMappings {
 
     public MemberToMetricMappings() {
@@ -22,11 +31,11 @@ public class MemberToMetricMappings {
         simpleTimers = new HashMap<>();
     }
 
-    private Map<MemberInfo, Set<MetricID>> counters;
-    private Map<MemberInfo, Set<MetricID>> concurrentGauges;
-    private Map<MemberInfo, Set<MetricID>> meters;
-    private Map<MemberInfo, Set<MetricID>> timers;
-    private Map<MemberInfo, Set<MetricID>> simpleTimers;
+    private final Map<MemberInfo, Set<MetricID>> counters;
+    private final Map<MemberInfo, Set<MetricID>> concurrentGauges;
+    private final Map<MemberInfo, Set<MetricID>> meters;
+    private final Map<MemberInfo, Set<MetricID>> timers;
+    private final Map<MemberInfo, Set<MetricID>> simpleTimers;
 
     public Set<MetricID> getCounters(MemberInfo member) {
         return counters.get(member);
@@ -71,4 +80,17 @@ public class MemberToMetricMappings {
         SmallRyeMetricsLogging.log.matchingMemberToMetric(member, metricID, metricType);
     }
 
+    public void removeMappingsFor(MemberInfo member, MetricID metricID) {
+        removeMapping(counters, member, metricID);
+        removeMapping(concurrentGauges, member, metricID);
+        removeMapping(meters, member, metricID);
+        removeMapping(timers, member, metricID);
+        removeMapping(simpleTimers, member, metricID);
+    }
+
+    private void removeMapping(Map<MemberInfo, Set<MetricID>> map, MemberInfo member, MetricID metricID) {
+        if (map.containsKey(member)) {
+            map.get(member).remove(metricID);
+        }
+    }
 }
