@@ -16,18 +16,15 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.eclipse.microprofile.metrics.ConcurrentGauge;
 import org.eclipse.microprofile.metrics.Counter;
 import org.eclipse.microprofile.metrics.Gauge;
 import org.eclipse.microprofile.metrics.Histogram;
 import org.eclipse.microprofile.metrics.Metadata;
-import org.eclipse.microprofile.metrics.Meter;
 import org.eclipse.microprofile.metrics.Metric;
 import org.eclipse.microprofile.metrics.MetricFilter;
 import org.eclipse.microprofile.metrics.MetricID;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.eclipse.microprofile.metrics.MetricType;
-import org.eclipse.microprofile.metrics.SimpleTimer;
 import org.eclipse.microprofile.metrics.Tag;
 import org.eclipse.microprofile.metrics.Timer;
 
@@ -82,7 +79,7 @@ public class LegacyMetricRegistryAdapter implements MetricRegistry {
      * This map is not a complete list of metrics owned by an application,
      * produced metrics are managed in the MetricsExtension
      *
-     * @param name
+     * @param metricID
      */
     protected void addNameToApplicationMap(MetricID metricID) {
         String appName = appNameResolver.getApplicationName();
@@ -166,7 +163,7 @@ public class LegacyMetricRegistryAdapter implements MetricRegistry {
 
     /**
      *
-     * @param sorted boolean to choose if the Tag array returned is sorted by key or not
+     * @param isSorted boolean to choose if the Tag array returned is sorted by key or not
      * @param tags the application tags to be merged with the MP Config mp.metrics.appName tag
      * @return combined Tag array of the MP Config mp.metrics.appName tag with application tags; can return null
      */
@@ -354,31 +351,6 @@ public class LegacyMetricRegistryAdapter implements MetricRegistry {
         return result.register(metadata, id, registry);
     }
 
-    @Override
-    public ConcurrentGauge concurrentGauge(String name) {
-        return null;
-    }
-
-    @Override
-    public ConcurrentGauge concurrentGauge(String name, Tag... tags) {
-        return null;
-    }
-
-    @Override
-    public ConcurrentGauge concurrentGauge(MetricID metricID) {
-        return null;
-    }
-
-    @Override
-    public ConcurrentGauge concurrentGauge(Metadata metadata) {
-        return null;
-    }
-
-    @Override
-    public ConcurrentGauge concurrentGauge(Metadata metadata, Tag... tags) {
-        return null;
-    }
-
     public <T> Gauge<Double> gauge(String name, T o, ToDoubleFunction<T> f) {
         return internalGauge(internalGetMetadata(name, MetricType.GAUGE),
                 new MetricDescriptor(name, withAppTags()), o, f);
@@ -515,31 +487,6 @@ public class LegacyMetricRegistryAdapter implements MetricRegistry {
     }
 
     @Override
-    public Meter meter(String name) {
-        return null;
-    }
-
-    @Override
-    public Meter meter(String name, Tag... tags) {
-        return null;
-    }
-
-    @Override
-    public Meter meter(MetricID metricID) {
-        return null;
-    }
-
-    @Override
-    public Meter meter(Metadata metadata) {
-        return null;
-    }
-
-    @Override
-    public Meter meter(Metadata metadata, Tag... tags) {
-        return null;
-    }
-
-    @Override
     public Timer timer(String name) {
         return internalTimer(internalGetMetadata(name, MetricType.TIMER),
                 new MetricDescriptor(name, withAppTags()));
@@ -589,31 +536,6 @@ public class LegacyMetricRegistryAdapter implements MetricRegistry {
     }
 
     @Override
-    public SimpleTimer simpleTimer(String name) {
-        return null;
-    }
-
-    @Override
-    public SimpleTimer simpleTimer(String name, Tag... tags) {
-        return null;
-    }
-
-    @Override
-    public SimpleTimer simpleTimer(MetricID metricID) {
-        return null;
-    }
-
-    @Override
-    public SimpleTimer simpleTimer(Metadata metadata) {
-        return null;
-    }
-
-    @Override
-    public SimpleTimer simpleTimer(Metadata metadata, Tag... tags) {
-        return null;
-    }
-
-    @Override
     public Metric getMetric(MetricID metricID) {
         return constructedMeters.get(new MetricDescriptor(metricID.getName(), withAppTags(metricID.getTagsAsArray())));
     }
@@ -631,12 +553,6 @@ public class LegacyMetricRegistryAdapter implements MetricRegistry {
     }
 
     @Override
-    public ConcurrentGauge getConcurrentGauge(MetricID metricID) {
-        return (ConcurrentGauge) constructedMeters
-                .get(new MetricDescriptor(metricID.getName(), withAppTags(metricID.getTagsAsArray())));
-    }
-
-    @Override
     public Gauge<?> getGauge(MetricID metricID) {
         return (Gauge<?>) constructedMeters
                 .get(new MetricDescriptor(metricID.getName(), withAppTags(metricID.getTagsAsArray())));
@@ -649,37 +565,13 @@ public class LegacyMetricRegistryAdapter implements MetricRegistry {
     }
 
     @Override
-    public Meter getMeter(MetricID metricID) {
-        return (Meter) constructedMeters.get(new MetricDescriptor(metricID.getName(), withAppTags(metricID.getTagsAsArray())));
-    }
-
-    @Override
     public Timer getTimer(MetricID metricID) {
         return (Timer) constructedMeters.get(new MetricDescriptor(metricID.getName(), withAppTags(metricID.getTagsAsArray())));
     }
 
     @Override
-    public SimpleTimer getSimpleTimer(MetricID metricID) {
-        return (SimpleTimer) constructedMeters
-                .get(new MetricDescriptor(metricID.getName(), withAppTags(metricID.getTagsAsArray())));
-    }
-
-    @Override
     public Metadata getMetadata(String name) {
         return metadataMap.get(name);
-    }
-
-    TimerAdapter injectedSimpleTimer(org.eclipse.microprofile.metrics.annotation.Metric annotation) {
-        return internalSimpleTimer(
-                internalGetMetadata(annotation.name(), MetricType.SIMPLE_TIMER).merge(annotation),
-                new MetricDescriptor(annotation.name(), annotation.tags()));
-    }
-
-    TimerAdapter internalSimpleTimer(MpMetadata metadata, MetricDescriptor id) {
-        // SimpleTimer --> Micrometer Timer
-        TimerAdapter result = checkCast(TimerAdapter.class, metadata,
-                constructedMeters.computeIfAbsent(id, k -> new TimerAdapter(registry)));
-        return result.register(metadata, id);
     }
 
     @Override
@@ -771,16 +663,6 @@ public class LegacyMetricRegistryAdapter implements MetricRegistry {
     }
 
     @Override
-    public SortedMap<MetricID, ConcurrentGauge> getConcurrentGauges() {
-        return getConcurrentGauges(MetricFilter.ALL);
-    }
-
-    @Override
-    public SortedMap<MetricID, ConcurrentGauge> getConcurrentGauges(MetricFilter metricFilter) {
-        return getMetrics(MetricType.CONCURRENT_GAUGE, metricFilter);
-    }
-
-    @Override
     public SortedMap<MetricID, Histogram> getHistograms() {
         return getHistograms(MetricFilter.ALL);
     }
@@ -791,16 +673,6 @@ public class LegacyMetricRegistryAdapter implements MetricRegistry {
     }
 
     @Override
-    public SortedMap<MetricID, Meter> getMeters() {
-        return getMeters(MetricFilter.ALL);
-    }
-
-    @Override
-    public SortedMap<MetricID, Meter> getMeters(MetricFilter metricFilter) {
-        return getMetrics(MetricType.METERED, metricFilter);
-    }
-
-    @Override
     public SortedMap<MetricID, Timer> getTimers() {
         return getTimers(MetricFilter.ALL);
     }
@@ -808,16 +680,6 @@ public class LegacyMetricRegistryAdapter implements MetricRegistry {
     @Override
     public SortedMap<MetricID, Timer> getTimers(MetricFilter metricFilter) {
         return getMetrics(MetricType.TIMER, metricFilter);
-    }
-
-    @Override
-    public SortedMap<MetricID, SimpleTimer> getSimpleTimers() {
-        return getSimpleTimers(MetricFilter.ALL);
-    }
-
-    @Override
-    public SortedMap<MetricID, SimpleTimer> getSimpleTimers(MetricFilter metricFilter) {
-        return getMetrics(MetricType.SIMPLE_TIMER, metricFilter);
     }
 
     @Override

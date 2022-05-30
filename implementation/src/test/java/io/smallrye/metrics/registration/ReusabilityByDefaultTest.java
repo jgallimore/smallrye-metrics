@@ -86,7 +86,7 @@ public class ReusabilityByDefaultTest {
         Metadata metadata = Metadata.builder().withName("mytimer").build();
         registry.timer(metadata).update(Duration.ofNanos(5));
         registry.timer(metadata).update(Duration.ofNanos(7));
-        assertEquals(2, registry.timer("mytimer").getCount());
+        assertEquals(2, registry.timer("mytimer").getSnapshot().size());
     }
 
     //    @Test
