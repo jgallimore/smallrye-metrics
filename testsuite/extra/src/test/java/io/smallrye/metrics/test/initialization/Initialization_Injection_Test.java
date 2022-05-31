@@ -20,7 +20,7 @@ package io.smallrye.metrics.test.initialization;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 
 import org.eclipse.microprofile.metrics.Histogram;
 import org.eclipse.microprofile.metrics.MetricID;

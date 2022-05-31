@@ -17,8 +17,8 @@
 
 package io.smallrye.metrics.test.inject;
 
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 
 import org.eclipse.microprofile.metrics.MetricID;
 import org.eclipse.microprofile.metrics.MetricRegistry;
