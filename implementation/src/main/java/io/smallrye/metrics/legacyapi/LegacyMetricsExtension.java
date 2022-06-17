@@ -46,6 +46,8 @@ import io.smallrye.metrics.legacyapi.interceptors.MetricNameFactory;
 import io.smallrye.metrics.legacyapi.interceptors.MetricResolver;
 import io.smallrye.metrics.legacyapi.interceptors.MetricsBinding;
 import io.smallrye.metrics.legacyapi.interceptors.TimedInterceptor;
+import io.smallrye.metrics.micrometer.MicrometerBackends;
+import io.smallrye.metrics.micrometer.RequiresClass;
 import io.smallrye.metrics.setup.MetricsMetadata;
 
 /**
@@ -102,9 +104,18 @@ public class LegacyMetricsExtension implements Extension {
                 CountedInterceptor.class,
                 GaugeRegistrationInterceptor.class,
                 TimedInterceptor.class,
-                MetricsRequestHandler.class
+                MetricsRequestHandler.class,
         }) {
             bbd.addAnnotatedType(manager.createAnnotatedType(clazz), extensionName + "_" + clazz.getName());
+        }
+
+        for (Class clazz : MicrometerBackends.classes()) {
+            try {
+                final RequiresClass requiresClass = (RequiresClass) clazz.getAnnotation(RequiresClass.class);
+                bbd.addAnnotatedType(manager.createAnnotatedType(clazz), extensionName + "_" + clazz.getName());
+            } catch (Exception e) {
+                // ignore and don't add
+            }
         }
     }
 
