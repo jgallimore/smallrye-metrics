@@ -19,12 +19,14 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.config.MeterFilter;
+import io.micrometer.prometheus.PrometheusConfig;
 import io.smallrye.metrics.base.LegacyBaseMetrics;
 import io.smallrye.metrics.legacyapi.LegacyMetricRegistryAdapter;
 import io.smallrye.metrics.micrometer.Backend;
 import io.smallrye.metrics.micrometer.MicrometerBackends;
 import io.smallrye.metrics.setup.ApplicationNameResolver;
 import io.smallrye.metrics.setup.MPCompositeMeterRegistry;
+import io.smallrye.metrics.setup.MPPrometheusMeterRegistry;
 
 /**
  * @author hrupp
@@ -118,32 +120,51 @@ public class MetricRegistries {
     private static MeterRegistry resolveMeterRegistry(MetricRegistry.Type type) {
         final MeterRegistry meterRegistry;
 
-        final BeanManager bm = CDI.current().getBeanManager();
-        final List<MeterRegistry> meterRegistries = new ArrayList<>();
+        if (isCDIAvailable()) {
+            final BeanManager bm = CDI.current().getBeanManager();
+            final List<MeterRegistry> meterRegistries = new ArrayList<>();
 
-        final Set<Bean<?>> beans = bm.getBeans(MeterRegistry.class, MicrometerBackends.class.getAnnotation(Backend.class));
-        for (Bean<?> bean : beans) {
-            final Object reference = bm.getReference(bean, bean.getBeanClass(), bm.createCreationalContext(bean));
-            if (MeterRegistry.class.isInstance(reference)) {
-                meterRegistries.add(MeterRegistry.class.cast(reference));
+            final Set<Bean<?>> beans = bm.getBeans(MeterRegistry.class, MicrometerBackends.class.getAnnotation(Backend.class));
+            for (Bean<?> bean : beans) {
+                final Object reference = bm.getReference(bean, bean.getBeanClass(), bm.createCreationalContext(bean));
+                if (MeterRegistry.class.isInstance(reference)) {
+                    meterRegistries.add(MeterRegistry.class.cast(reference));
+                }
             }
-        }
 
-        if (type == MetricRegistry.Type.BASE) {
-            meterRegistry = new MPCompositeMeterRegistry(meterRegistries, MetricRegistry.Type.BASE);
-            meterRegistry.config().commonTags("scope", MetricRegistry.Type.BASE.getName());
-            meterRegistry.config().meterFilter(mpMeterBaseRegistryAccessFilter);
+            if (type == MetricRegistry.Type.BASE) {
+                meterRegistry = new MPCompositeMeterRegistry(meterRegistries, MetricRegistry.Type.BASE);
+                meterRegistry.config().commonTags("scope", MetricRegistry.Type.BASE.getName());
+                meterRegistry.config().meterFilter(mpMeterBaseRegistryAccessFilter);
 
-        } else if (type == MetricRegistry.Type.APPLICATION) {
-            meterRegistry = new MPCompositeMeterRegistry(meterRegistries, MetricRegistry.Type.APPLICATION);
-            meterRegistry.config().commonTags("scope", MetricRegistry.Type.APPLICATION.getName());
-            meterRegistry.config().meterFilter(mpMeterAppRegistryAccessFilter);
-        } else if (type == MetricRegistry.Type.VENDOR) {
-            meterRegistry = new MPCompositeMeterRegistry(meterRegistries, MetricRegistry.Type.VENDOR);
-            meterRegistry.config().commonTags("scope", MetricRegistry.Type.VENDOR.getName());
-            meterRegistry.config().meterFilter(mpMeterVendorRegistryAccessFilter);
+            } else if (type == MetricRegistry.Type.APPLICATION) {
+                meterRegistry = new MPCompositeMeterRegistry(meterRegistries, MetricRegistry.Type.APPLICATION);
+                meterRegistry.config().commonTags("scope", MetricRegistry.Type.APPLICATION.getName());
+                meterRegistry.config().meterFilter(mpMeterAppRegistryAccessFilter);
+            } else if (type == MetricRegistry.Type.VENDOR) {
+                meterRegistry = new MPCompositeMeterRegistry(meterRegistries, MetricRegistry.Type.VENDOR);
+                meterRegistry.config().commonTags("scope", MetricRegistry.Type.VENDOR.getName());
+                meterRegistry.config().meterFilter(mpMeterVendorRegistryAccessFilter);
+            } else {
+                meterRegistry = Metrics.globalRegistry;
+            }
         } else {
-            meterRegistry = Metrics.globalRegistry;
+            if (type == MetricRegistry.Type.BASE) {
+                meterRegistry = new MPPrometheusMeterRegistry(PrometheusConfig.DEFAULT, MetricRegistry.Type.BASE);
+                meterRegistry.config().commonTags("scope", MetricRegistry.Type.BASE.getName());
+                meterRegistry.config().meterFilter(mpMeterBaseRegistryAccessFilter);
+
+            } else if (type == MetricRegistry.Type.APPLICATION) {
+                meterRegistry = new MPPrometheusMeterRegistry(PrometheusConfig.DEFAULT, MetricRegistry.Type.APPLICATION);
+                meterRegistry.config().commonTags("scope", MetricRegistry.Type.APPLICATION.getName());
+                meterRegistry.config().meterFilter(mpMeterAppRegistryAccessFilter);
+            } else if (type == MetricRegistry.Type.VENDOR) {
+                meterRegistry = new MPPrometheusMeterRegistry(PrometheusConfig.DEFAULT, MetricRegistry.Type.VENDOR);
+                meterRegistry.config().commonTags("scope", MetricRegistry.Type.VENDOR.getName());
+                meterRegistry.config().meterFilter(mpMeterVendorRegistryAccessFilter);
+            } else {
+                meterRegistry = Metrics.globalRegistry;
+            }
         }
 
         meterRegistry.config().meterFilter(MeterFilter.deny());
@@ -166,6 +187,15 @@ public class MetricRegistries {
             MetricRegistries.MP_BASE_METER_REG_ACCESS.set(false);
         }
         return meterRegistry;
+    }
+
+    private static boolean isCDIAvailable() {
+        try {
+            CDI.current();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @PreDestroy
