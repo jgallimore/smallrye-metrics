@@ -16,13 +16,8 @@
  */
 package io.smallrye.metrics.micrometer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 
@@ -35,7 +30,6 @@ import io.micrometer.appoptics.AppOpticsMeterRegistry;
 import io.micrometer.atlas.AtlasMeterRegistry;
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
 import io.micrometer.datadog.DatadogConfig;
 import io.micrometer.datadog.DatadogMeterRegistry;
 import io.micrometer.dynatrace.DynatraceConfig;
@@ -73,42 +67,6 @@ public class MicrometerBackends {
 
     @Inject
     private BeanManager bm;
-
-    public static Class<?>[] classes() {
-        return new Class<?>[] {
-                MicrometerBackends.class,
-                AppOpticsBackendProducer.class,
-                AtlasBackendProducer.class,
-                DatadogBackendProducer.class,
-                ElasticBackendProducer.class,
-                GangliaBackendProducer.class,
-                HumioBackendProducer.class,
-                InfluxBackendProducer.class,
-                JmxBackendProducer.class,
-                KairosBackendProducer.class,
-                NewRelicBackendProducer.class,
-                PrometheusBackendProducer.class,
-                SignalFxBackendProducer.class,
-                StackdriverBackendProducer.class,
-                StatsdBackendProducer.class,
-                WavefrontBackendProducer.class
-        };
-    }
-
-    @Produces
-    public CompositeMeterRegistry produce() {
-        final List<MeterRegistry> meterRegistries = new ArrayList<>();
-
-        final Set<Bean<?>> beans = bm.getBeans(MeterRegistry.class, MicrometerBackends.class.getAnnotation(Backend.class));
-        for (Bean<?> bean : beans) {
-            final Object reference = bm.getReference(bean, bean.getBeanClass(), bm.createCreationalContext(bean));
-            if (MeterRegistry.class.isInstance(reference)) {
-                meterRegistries.add(MeterRegistry.class.cast(reference));
-            }
-        }
-
-        return new CompositeMeterRegistry(Clock.SYSTEM, meterRegistries);
-    }
 
     @RequiresClass({ AppOpticsMeterRegistry.class, AppOpticsConfig.class })
     public static class AppOpticsBackendProducer {
