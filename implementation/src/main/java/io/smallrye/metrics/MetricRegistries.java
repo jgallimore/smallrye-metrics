@@ -126,7 +126,7 @@ public class MetricRegistries {
 
             final Set<Bean<?>> beans = bm.getBeans(MeterRegistry.class, MicrometerBackends.class.getAnnotation(Backend.class));
             for (Bean<?> bean : beans) {
-                final Object reference = bm.getReference(bean, bean.getBeanClass(), bm.createCreationalContext(bean));
+                final Object reference = bm.getReference(bean, MeterRegistry.class, bm.createCreationalContext(bean));
                 if (MeterRegistry.class.isInstance(reference)) {
                     meterRegistries.add(MeterRegistry.class.cast(reference));
                 }

@@ -27,6 +27,8 @@ import javax.enterprise.inject.spi.ProcessManagedBean;
 import javax.enterprise.inject.spi.WithAnnotations;
 import javax.enterprise.util.AnnotationLiteral;
 
+import io.smallrye.metrics.micrometer.MicrometerBackends;
+import io.smallrye.metrics.micrometer.RequiresClass;
 import org.eclipse.microprofile.metrics.MetricID;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.eclipse.microprofile.metrics.annotation.ConcurrentGauge;
@@ -108,6 +110,15 @@ public class LegacyMetricsExtension implements Extension {
                 MetricsRequestHandler.class
         }) {
             bbd.addAnnotatedType(manager.createAnnotatedType(clazz), extensionName + "_" + clazz.getName());
+        }
+
+        for (Class clazz : MicrometerBackends.classes()) {
+            try {
+                final RequiresClass requiresClass = (RequiresClass) clazz.getAnnotation(RequiresClass.class);
+                bbd.addAnnotatedType(manager.createAnnotatedType(clazz), extensionName + "_" + clazz.getName());
+            } catch (Exception e) {
+                // ignore and don't add
+            }
         }
     }
 
