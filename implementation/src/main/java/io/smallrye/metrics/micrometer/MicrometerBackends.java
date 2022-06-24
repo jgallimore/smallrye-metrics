@@ -90,6 +90,7 @@ public class MicrometerBackends {
                 WavefrontBackendProducer.class
         };
     }
+
     @RequiresClass({ AppOpticsMeterRegistry.class, AppOpticsConfig.class })
     public static class AppOpticsBackendProducer {
 
