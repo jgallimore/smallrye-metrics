@@ -21,6 +21,8 @@ import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 
+import io.micrometer.core.instrument.simple.SimpleConfig;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.eclipse.microprofile.config.Config;
 
 import com.netflix.spectator.atlas.AtlasConfig;
