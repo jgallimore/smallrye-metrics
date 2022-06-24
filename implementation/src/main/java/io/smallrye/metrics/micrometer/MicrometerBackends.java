@@ -70,6 +70,26 @@ public class MicrometerBackends {
     @Inject
     private BeanManager bm;
 
+    public static Class<?>[] classes() {
+        return new Class<?>[] {
+                MicrometerBackends.class,
+                AppOpticsBackendProducer.class,
+                AtlasBackendProducer.class,
+                DatadogBackendProducer.class,
+                ElasticBackendProducer.class,
+                GangliaBackendProducer.class,
+                HumioBackendProducer.class,
+                InfluxBackendProducer.class,
+                JmxBackendProducer.class,
+                KairosBackendProducer.class,
+                NewRelicBackendProducer.class,
+                PrometheusBackendProducer.class,
+                SignalFxBackendProducer.class,
+                StackdriverBackendProducer.class,
+                StatsdBackendProducer.class,
+                WavefrontBackendProducer.class
+        };
+    }
     @RequiresClass({ AppOpticsMeterRegistry.class, AppOpticsConfig.class })
     public static class AppOpticsBackendProducer {
 
@@ -384,6 +404,23 @@ public class MicrometerBackends {
         @Backend
         public MeterRegistry produce() {
             return new WavefrontMeterRegistry(new WavefrontConfig() {
+                @Override
+                public String get(final String propertyName) {
+                    return config.getOptionalValue("microprofile.metrics." + propertyName, String.class)
+                            .orElse(null);
+                }
+            }, io.micrometer.core.instrument.Clock.SYSTEM);
+        }
+    }
+
+    public static class SimpleMeterRegistryProducer {
+        @Inject
+        private Config config;
+
+        @Produces
+        @Backend
+        public MeterRegistry produce() {
+            return new SimpleMeterRegistry(new SimpleConfig() {
                 @Override
                 public String get(final String propertyName) {
                     return config.getOptionalValue("microprofile.metrics." + propertyName, String.class)
