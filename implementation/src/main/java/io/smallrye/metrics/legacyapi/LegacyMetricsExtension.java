@@ -27,8 +27,6 @@ import javax.enterprise.inject.spi.ProcessManagedBean;
 import javax.enterprise.inject.spi.WithAnnotations;
 import javax.enterprise.util.AnnotationLiteral;
 
-import io.smallrye.metrics.micrometer.MicrometerBackends;
-import io.smallrye.metrics.micrometer.RequiresClass;
 import org.eclipse.microprofile.metrics.MetricID;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.eclipse.microprofile.metrics.annotation.ConcurrentGauge;
@@ -51,6 +49,8 @@ import io.smallrye.metrics.legacyapi.interceptors.MetricNameFactory;
 import io.smallrye.metrics.legacyapi.interceptors.MetricResolver;
 import io.smallrye.metrics.legacyapi.interceptors.MetricsBinding;
 import io.smallrye.metrics.legacyapi.interceptors.TimedInterceptor;
+import io.smallrye.metrics.micrometer.MicrometerBackends;
+import io.smallrye.metrics.micrometer.RequiresClass;
 import io.smallrye.metrics.setup.MetricsMetadata;
 
 /**

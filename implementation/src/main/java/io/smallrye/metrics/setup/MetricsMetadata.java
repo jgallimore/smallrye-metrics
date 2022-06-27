@@ -54,15 +54,17 @@ public class MetricsMetadata {
             AnnotationInfo t = timed.metricAnnotation();
             Metadata metadata = getMetadata(element, timed.metricName(), t.unit(), t.description(), t.displayName(),
                     MetricType.TIMER);
+
             Tag[] tags = parseTagsAsArray(t.tags());
-            registry.timer(metadata, tags);
             if (registry instanceof LegacyMetricRegistryAdapter) {
-                MetricID metricID = new MetricID(metadata.getName(),
-                        appendScopeTags(tags, (LegacyMetricRegistryAdapter) registry));
+                tags = appendScopeTags(tags, (LegacyMetricRegistryAdapter) registry);
+                MetricID metricID = new MetricID(metadata.getName(), tags);
                 metricIDs.add(metricID);
                 ((LegacyMetricRegistryAdapter) registry).getMemberToMetricMappings().addMetric(element, metricID,
                         MetricType.TIMER);
             }
+
+            registry.timer(metadata, tags);
         }
 
         return metricIDs;
