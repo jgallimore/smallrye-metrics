@@ -1,10 +1,8 @@
 package io.smallrye.metrics;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.enterprise.inject.Produces;
 
-import org.eclipse.microprofile.metrics.annotation.Timed;
+import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
@@ -17,49 +15,46 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-import io.micrometer.core.instrument.Clock;
-import io.micrometer.core.instrument.Meter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.*;
 import io.micrometer.core.instrument.search.Search;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.smallrye.metrics.micrometer.Backend;
 
-@RunWith(Arquillian.class)
 @Category(FunctionalTest.class)
-public class TimedAnnotationTest {
+@RunWith(Arquillian.class)
+public class CountedAnnotationTest {
     @Deployment
     public static Archive<?> deployment() {
         return ShrinkWrap.create(JavaArchive.class)
-                .addClasses(SimpleMeterRegistryProducer.class, TimerBusinessLogic.class)
+                .addClasses(SimpleMeterRegistryProducer.class, CountedBusinessLogic.class)
                 .addAsResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
     }
 
     @Test
-    public void test(final MetricRegistries metricRegistries, final TimerBusinessLogic timerBusinessLogic) throws Exception {
+    public void test(final MetricRegistries metricRegistries, final CountedBusinessLogic countedBusinessLogic)
+            throws Exception {
         Assert.assertNotNull(metricRegistries);
-        Assert.assertNotNull(timerBusinessLogic);
+        Assert.assertNotNull(countedBusinessLogic);
 
         SimpleMeterRegistry simpleRegistry = TestHelper.getSimpleMeterRegistry(metricRegistries);
 
         Assert.assertNotNull(simpleRegistry);
 
         // check a meter is created for the @Timed bean method
-        final Search search = simpleRegistry.find("io.smallrye.metrics.TimedAnnotationTest$TimerBusinessLogic.invoke");
+        final Search search = simpleRegistry.find("io.smallrye.metrics.CountedAnnotationTest$CountedBusinessLogic.invoke");
         final Meter meter = search.meter();
 
         Assert.assertNotNull(meter);
-        Assert.assertTrue(meter instanceof Timer);
-        final Timer timer = (Timer) meter;
-        Assert.assertEquals("application", timer.getId().getTag("scope"));
+        Assert.assertTrue(meter instanceof Counter);
+        final Counter counter = (Counter) meter;
+        Assert.assertEquals("application", counter.getId().getTag("scope"));
 
         // invoke some MP Metrics Annotated methods a few times
         for (int i = 0; i < 10; i++) {
-            timerBusinessLogic.invoke();
+            countedBusinessLogic.invoke();
         }
 
-        Assert.assertEquals(10, timer.count());
-        Assert.assertEquals(1, timer.totalTime(TimeUnit.SECONDS), 0.1);
+        Assert.assertEquals(10, counter.count(), 0.0);
     }
 
     public static class SimpleMeterRegistryProducer {
@@ -71,11 +66,10 @@ public class TimedAnnotationTest {
         }
     }
 
-    public static class TimerBusinessLogic {
+    public static class CountedBusinessLogic {
 
-        @Timed
+        @Counted
         public void invoke() throws Exception {
-            Thread.sleep(100); // do some work!
         }
     }
 }

@@ -36,17 +36,19 @@ public class MetricsMetadata {
             Metadata metadata = getMetadata(element, counted.metricName(), t.unit(), t.description(), t.displayName(),
                     MetricType.COUNTER);
             Tag[] tags = parseTagsAsArray(t.tags());
-            registry.counter(metadata, tags);
+            tags = appendScopeTags(tags, (LegacyMetricRegistryAdapter) registry);
+
             if (registry instanceof LegacyMetricRegistryAdapter) {
                 //add this CDI MetricID into MetricRegistry's MetricID list....
-                MetricID metricID = new MetricID(metadata.getName(),
-                        appendScopeTags(tags, (LegacyMetricRegistryAdapter) registry));
+                tags = appendScopeTags(tags, (LegacyMetricRegistryAdapter) registry);
+                MetricID metricID = new MetricID(metadata.getName(), tags);
                 metricIDs.add(metricID);
 
                 //Some list in MetricRegistry that maps the CDI element, metricID and metric type
                 ((LegacyMetricRegistryAdapter) registry).getMemberToMetricMappings().addMetric(element, metricID,
                         MetricType.COUNTER);
             }
+            registry.counter(metadata, tags);
         }
 
         MetricResolver.Of<Timed> timed = resolver.timed(bean, element);

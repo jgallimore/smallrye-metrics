@@ -39,6 +39,20 @@
             </java.util.logging.config.file>
           </systemProperties>
         </configuration>
+        <executions>
+          <execution>
+            <id>main</id>
+            <configuration>
+              <excludedCategories>io.smallrye.metrics.FunctionalTest</excludedCategories>
+            </configuration>
+          </execution>
+          <execution>
+            <id>functional-test</id>
+            <configuration>
+              <groups>io.smallrye.metrics.FunctionalTest</groups>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
