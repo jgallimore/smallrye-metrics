@@ -30,6 +30,8 @@ import io.micrometer.appoptics.AppOpticsMeterRegistry;
 import io.micrometer.atlas.AtlasMeterRegistry;
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleConfig;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.micrometer.datadog.DatadogConfig;
 import io.micrometer.datadog.DatadogMeterRegistry;
 import io.micrometer.dynatrace.DynatraceConfig;
@@ -487,6 +489,23 @@ public class MicrometerBackends {
                 return null;
             }
             return new WavefrontMeterRegistry(new WavefrontConfig() {
+                @Override
+                public String get(final String propertyName) {
+                    return config.getOptionalValue("microprofile.metrics." + propertyName, String.class)
+                            .orElse(null);
+                }
+            }, io.micrometer.core.instrument.Clock.SYSTEM);
+        }
+    }
+
+    public static class SimpleMeterRegistryProducer {
+        @Inject
+        private Config config;
+
+        @Produces
+        @Backend
+        public MeterRegistry produce() {
+            return new SimpleMeterRegistry(new SimpleConfig() {
                 @Override
                 public String get(final String propertyName) {
                     return config.getOptionalValue("microprofile.metrics." + propertyName, String.class)

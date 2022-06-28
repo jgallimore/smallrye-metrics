@@ -36,11 +36,10 @@ public class TimedAnnotationTest {
     }
 
     @Test
-    public void test(final MetricRegistries metricRegistries, final TimerBusinessLogic timerBusinessLogic) throws Exception {
-        Assert.assertNotNull(metricRegistries);
+    public void test(final TimerBusinessLogic timerBusinessLogic) throws Exception {
         Assert.assertNotNull(timerBusinessLogic);
 
-        SimpleMeterRegistry simpleRegistry = TestHelper.getSimpleMeterRegistry(metricRegistries);
+        SimpleMeterRegistry simpleRegistry = TestHelper.getSimpleMeterRegistry();
 
         Assert.assertNotNull(simpleRegistry);
 

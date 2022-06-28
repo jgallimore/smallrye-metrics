@@ -34,4 +34,5 @@ public class MPCompositeMeterRegistry extends CompositeMeterRegistry {
     public MetricRegistry.Type getType() {
         return registryType;
     }
+
 }
