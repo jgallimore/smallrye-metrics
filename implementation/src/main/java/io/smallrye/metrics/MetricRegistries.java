@@ -1,6 +1,8 @@
 package io.smallrye.metrics;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PreDestroy;
