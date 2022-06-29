@@ -16,9 +16,7 @@
  */
 package io.smallrye.metrics.micrometer;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 
 import org.eclipse.microprofile.config.Config;
@@ -28,7 +26,6 @@ import com.netflix.spectator.atlas.AtlasConfig;
 import io.micrometer.appoptics.AppOpticsConfig;
 import io.micrometer.appoptics.AppOpticsMeterRegistry;
 import io.micrometer.atlas.AtlasMeterRegistry;
-import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleConfig;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -63,16 +60,11 @@ import io.micrometer.statsd.StatsdMeterRegistry;
 import io.micrometer.wavefront.WavefrontConfig;
 import io.micrometer.wavefront.WavefrontMeterRegistry;
 
-@ApplicationScoped
 @Backend
 public class MicrometerBackends {
 
-    @Inject
-    private BeanManager bm;
-
     public static Class<?>[] classes() {
         return new Class<?>[] {
-                MicrometerBackends.class,
                 AppOpticsBackendProducer.class,
                 AtlasBackendProducer.class,
                 DatadogBackendProducer.class,

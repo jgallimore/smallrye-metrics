@@ -100,8 +100,10 @@ public class LegacyMetricsExtension implements Extension {
         for (Class clazz : MicrometerBackends.classes()) {
             try {
                 final RequiresClass requiresClass = (RequiresClass) clazz.getAnnotation(RequiresClass.class);
+                final Class<?>[] requiredClass = requiresClass.value();
                 bbd.addAnnotatedType(manager.createAnnotatedType(clazz), extensionName + "_" + clazz.getName());
             } catch (Exception e) {
+                System.out.println("Not adding: " + clazz.getName());
                 // ignore and don't add
             }
         }
@@ -169,7 +171,6 @@ public class LegacyMetricsExtension implements Extension {
     void registerMetrics(@Observes AfterDeploymentValidation adv, BeanManager manager) {
 
         // register configured meter registries
-
         final Set<Bean<?>> beans = manager.getBeans(MeterRegistry.class, MicrometerBackends.class.getAnnotation(Backend.class));
         for (Bean<?> bean : beans) {
             final Object reference = manager.getReference(bean, MeterRegistry.class, manager.createCreationalContext(bean));

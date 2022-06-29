@@ -30,6 +30,7 @@ import org.eclipse.microprofile.metrics.Metadata;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.eclipse.microprofile.metrics.MetricType;
 import org.eclipse.microprofile.metrics.annotation.Gauge;
+import org.eclipse.microprofile.metrics.annotation.RegistryType;
 
 import io.smallrye.metrics.elementdesc.AnnotationInfo;
 import io.smallrye.metrics.elementdesc.adapter.BeanInfoAdapter;
@@ -45,13 +46,13 @@ import io.smallrye.metrics.setup.MetricsMetadata;
 @Priority(Interceptor.Priority.LIBRARY_BEFORE)
 public class GaugeRegistrationInterceptor {
 
-    private final MetricRegistry registry;
+    @RegistryType(type = MetricRegistry.Type.APPLICATION)
+    @Inject
+    private MetricRegistry registry;
 
     private final MetricResolver resolver;
 
-    @Inject
-    GaugeRegistrationInterceptor(MetricRegistry registry) {
-        this.registry = registry;
+    GaugeRegistrationInterceptor() {
         this.resolver = new MetricResolver();
     }
 
