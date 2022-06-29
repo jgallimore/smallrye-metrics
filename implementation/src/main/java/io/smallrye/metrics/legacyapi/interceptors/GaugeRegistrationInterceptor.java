@@ -26,6 +26,7 @@ import javax.interceptor.AroundConstruct;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
+import io.smallrye.metrics.MetricRegistries;
 import org.eclipse.microprofile.metrics.Metadata;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.eclipse.microprofile.metrics.MetricType;
@@ -46,13 +47,12 @@ import io.smallrye.metrics.setup.MetricsMetadata;
 @Priority(Interceptor.Priority.LIBRARY_BEFORE)
 public class GaugeRegistrationInterceptor {
 
-    @RegistryType(type = MetricRegistry.Type.APPLICATION)
-    @Inject
     private MetricRegistry registry;
 
     private final MetricResolver resolver;
 
     GaugeRegistrationInterceptor() {
+        this.registry = MetricRegistries.getOrCreate(MetricRegistry.Type.APPLICATION);
         this.resolver = new MetricResolver();
     }
 
