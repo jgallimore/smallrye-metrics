@@ -69,6 +69,7 @@ public class MicrometerBackends {
                 AtlasBackendProducer.class,
                 DatadogBackendProducer.class,
                 ElasticBackendProducer.class,
+                GraphiteBackendProducer.class,
                 GangliaBackendProducer.class,
                 HumioBackendProducer.class,
                 InfluxBackendProducer.class,

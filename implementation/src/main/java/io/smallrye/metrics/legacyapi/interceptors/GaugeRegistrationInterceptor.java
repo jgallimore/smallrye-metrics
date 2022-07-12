@@ -21,18 +21,16 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 
 import javax.annotation.Priority;
-import javax.inject.Inject;
 import javax.interceptor.AroundConstruct;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
-import io.smallrye.metrics.MetricRegistries;
 import org.eclipse.microprofile.metrics.Metadata;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.eclipse.microprofile.metrics.MetricType;
 import org.eclipse.microprofile.metrics.annotation.Gauge;
-import org.eclipse.microprofile.metrics.annotation.RegistryType;
 
+import io.smallrye.metrics.MetricRegistries;
 import io.smallrye.metrics.elementdesc.AnnotationInfo;
 import io.smallrye.metrics.elementdesc.adapter.BeanInfoAdapter;
 import io.smallrye.metrics.elementdesc.adapter.MemberInfoAdapter;
