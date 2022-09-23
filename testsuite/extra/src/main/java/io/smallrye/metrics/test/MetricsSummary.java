@@ -19,21 +19,22 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.metrics.MetricRegistry;
-import org.eclipse.microprofile.metrics.annotation.RegistryType;
+import org.eclipse.microprofile.metrics.annotation.RegistryScope;
 
 @ApplicationScoped
 public class MetricsSummary {
 
     @Inject
-    @RegistryType(type = MetricRegistry.Type.BASE)
+
+    @RegistryScope(scope = MetricRegistry.BASE_SCOPE)
     private MetricRegistry baseMetrics;
 
     @Inject
-    @RegistryType(type = MetricRegistry.Type.VENDOR)
+    @RegistryScope(scope = MetricRegistry.VENDOR_SCOPE)
     private MetricRegistry vendorMetrics;
 
     @Inject
-    @RegistryType(type = MetricRegistry.Type.APPLICATION)
+    @RegistryScope(scope = MetricRegistry.APPLICATION_SCOPE)
     private MetricRegistry appMetrics;
 
     @Inject
