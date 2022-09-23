@@ -33,7 +33,7 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import io.smallrye.metrics.MetricRegistries;
+import io.smallrye.metrics.SharedMetricRegistries;
 
 /**
  * Verify that it is possible to have metrics (except gauges) in beans with other scope than just ApplicationScope.
@@ -41,6 +41,8 @@ import io.smallrye.metrics.MetricRegistries;
  * They don't need to be marked as reusable for this.
  * This does not work for gauges because a gauge must always be bound to just one object.
  */
+
+// TODO: test for a regular gauge?
 @RunWith(Arquillian.class)
 public class MetricsInDependentScopedBeanTest {
 
@@ -53,7 +55,7 @@ public class MetricsInDependentScopedBeanTest {
 
     @AfterClass
     public static void cleanupApplicationMetrics() {
-        MetricRegistries.getOrCreate(MetricRegistry.Type.APPLICATION).removeMatching(MetricFilter.ALL);
+        SharedMetricRegistries.getOrCreate(MetricRegistry.APPLICATION_SCOPE).removeMatching(MetricFilter.ALL);
     }
 
     @Inject
@@ -73,16 +75,16 @@ public class MetricsInDependentScopedBeanTest {
         assertEquals(2, registry.getCounters().get(new MetricID("counter")).getCount());
     }
 
-    @Test
-    public void meter() {
-        DependentScopedBeanWithMetrics instance1 = beanInstance.get();
-        DependentScopedBeanWithMetrics instance2 = beanInstance.get();
-
-        instance1.meteredMethod();
-        instance2.meteredMethod();
-
-        assertEquals(2, registry.getMeters().get(new MetricID("meter")).getCount());
-    }
+    //    @Test
+    //    public void meter() {
+    //        DependentScopedBeanWithMetrics instance1 = beanInstance.get();
+    //        DependentScopedBeanWithMetrics instance2 = beanInstance.get();
+    //
+    //        instance1.meteredMethod();
+    //        instance2.meteredMethod();
+    //
+    //        assertEquals(2, registry.getMeters().get(new MetricID("meter")).getCount());
+    //    }
 
     @Test
     public void timer() {
@@ -95,15 +97,15 @@ public class MetricsInDependentScopedBeanTest {
         assertEquals(2, registry.getTimers().get(new MetricID("timer")).getCount());
     }
 
-    @Test
-    public void concurrentGauge() {
-        DependentScopedBeanWithMetrics instance1 = beanInstance.get();
-        DependentScopedBeanWithMetrics instance2 = beanInstance.get();
-
-        instance1.cGaugedMethod();
-        instance2.cGaugedMethod();
-
-        assertEquals(0, registry.getConcurrentGauges().get(new MetricID("cgauge")).getCount());
-    }
+    //    @Test
+    //    public void concurrentGauge() {
+    //        DependentScopedBeanWithMetrics instance1 = beanInstance.get();
+    //        DependentScopedBeanWithMetrics instance2 = beanInstance.get();
+    //
+    //        instance1.cGaugedMethod();
+    //        instance2.cGaugedMethod();
+    //
+    //        assertEquals(0, registry.getConcurrentGauges().get(new MetricID("cgauge")).getCount());
+    //    }
 
 }

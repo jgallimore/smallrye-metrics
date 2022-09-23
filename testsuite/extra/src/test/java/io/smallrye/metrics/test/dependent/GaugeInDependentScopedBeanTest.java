@@ -31,7 +31,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import io.smallrye.metrics.MetricRegistries;
+import io.smallrye.metrics.SharedMetricRegistries;
 
 /**
  * Gauges can only be used with AnnotationScoped beans. If we place a gauge on a bean that creates multiple
@@ -51,7 +51,7 @@ public class GaugeInDependentScopedBeanTest {
 
     @After
     public void cleanupApplicationMetrics() {
-        MetricRegistries.getOrCreate(MetricRegistry.Type.APPLICATION).removeMatching(MetricFilter.ALL);
+        SharedMetricRegistries.getOrCreate(MetricRegistry.APPLICATION_SCOPE).removeMatching(MetricFilter.ALL);
     }
 
     @Inject

@@ -16,9 +16,7 @@
 
 package io.smallrye.metrics.test.dependent;
 
-import org.eclipse.microprofile.metrics.annotation.ConcurrentGauge;
 import org.eclipse.microprofile.metrics.annotation.Counted;
-import org.eclipse.microprofile.metrics.annotation.Metered;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 
 public class DependentScopedBeanWithMetrics {
@@ -28,19 +26,8 @@ public class DependentScopedBeanWithMetrics {
 
     }
 
-    @Metered(name = "meter", absolute = true)
-    public void meteredMethod() {
-
-    }
-
     @Timed(name = "timer", absolute = true)
     public void timedMethod() {
 
     }
-
-    @ConcurrentGauge(name = "cgauge", absolute = true)
-    public void cGaugedMethod() {
-
-    }
-
 }

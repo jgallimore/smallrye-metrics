@@ -18,6 +18,7 @@ package io.smallrye.metrics.tck.rest;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import jakarta.inject.Inject;
@@ -45,8 +46,9 @@ public class MetricsHttpServlet extends HttpServlet {
         String requestPath = request.getRequestURI();
         String method = request.getMethod();
         Stream<String> acceptHeaders = Collections.list(request.getHeaders("Accept")).stream();
+        Map<String, String[]> parameters = request.getParameterMap();
 
-        metricsHandler.handleRequest(requestPath, method, acceptHeaders, (status, message, headers) -> {
+        metricsHandler.handleRequest(requestPath, method, acceptHeaders, parameters, (status, message, headers) -> {
             headers.forEach(response::addHeader);
             response.setStatus(status);
             response.getWriter().write(message);
