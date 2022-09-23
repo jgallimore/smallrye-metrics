@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 
+import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.metrics.Counter;
 import org.eclipse.microprofile.metrics.Gauge;

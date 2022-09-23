@@ -188,12 +188,19 @@ public class LegacyBaseMetrics implements MeterBinder {
     }
 
     private void baseMemoryMetrics(MeterRegistry registry) {
-        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+        final MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
         Gauge.builder(MEMORY_COMMITTED_HEAP,
                 memoryMXBean.getHeapMemoryUsage()::getCommitted)
                 .description("Displays the amount of memory in bytes that is committed for the Java virtual machine to use. " +
                         "This amount of memory is guaranteed for the Java virtual machine to use.")
                 .baseUnit(BaseUnits.BYTES).tag(LegacyMetricRegistryAdapter.MP_SCOPE_TAG, "base").register(registry);
+
+        Gauge.builder(MEMORY_COMMITTED_HEAP + ".2",
+                () -> memoryMXBean.getHeapMemoryUsage().getCommitted())
+                .description("Displays the amount of memory in bytes that is committed for the Java virtual machine to use. " +
+                        "This amount of memory is guaranteed for the Java virtual machine to use.")
+                .baseUnit(BaseUnits.BYTES).tag(LegacyMetricRegistryAdapter.MP_SCOPE_TAG, "base").register(registry);
+
         Gauge.builder(MEMORY_MAX_HEAP,
                 memoryMXBean.getHeapMemoryUsage()::getMax)
                 .description("Displays the maximum amount of heap memory in bytes that can be used for memory management. "
@@ -205,8 +212,27 @@ public class LegacyBaseMetrics implements MeterBinder {
                         "The Java virtual machine may fail to allocate memory even if the amount of used memory does " +
                         "not exceed this maximum size.")
                 .baseUnit(BaseUnits.BYTES).tag(LegacyMetricRegistryAdapter.MP_SCOPE_TAG, "base").register(registry);
+
+        Gauge.builder(MEMORY_MAX_HEAP + ".2",
+                () -> memoryMXBean.getHeapMemoryUsage().getMax())
+                .description("Displays the maximum amount of heap memory in bytes that can be used for memory management. "
+                        +
+                        "This attribute displays -1 if the maximum heap memory size is undefined. This amount of memory is not "
+                        +
+                        "guaranteed to be available for memory management if it is greater than the amount of committed memory. "
+                        +
+                        "The Java virtual machine may fail to allocate memory even if the amount of used memory does " +
+                        "not exceed this maximum size.")
+                .baseUnit(BaseUnits.BYTES).tag(LegacyMetricRegistryAdapter.MP_SCOPE_TAG, "base").register(registry);
+
         Gauge.builder(MEMORY_USED_HEAP,
                 memoryMXBean.getHeapMemoryUsage()::getUsed).description("Displays the amount of used heap memory in bytes.")
                 .baseUnit(BaseUnits.BYTES).tag(LegacyMetricRegistryAdapter.MP_SCOPE_TAG, "base").register(registry);
+
+        Gauge.builder(MEMORY_USED_HEAP + ".2",
+                () -> memoryMXBean.getHeapMemoryUsage().getUsed())
+                .description("Displays the amount of used heap memory in bytes.")
+                .baseUnit(BaseUnits.BYTES).tag(LegacyMetricRegistryAdapter.MP_SCOPE_TAG, "base").register(registry);
+
     }
 }
