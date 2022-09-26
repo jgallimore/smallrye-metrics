@@ -32,9 +32,9 @@
 
   <modules>
     <module>common</module>
-    <module>api-tck</module>
-    <module>extra</module>
-    <module>rest-tck</module>
+<!--    <module>api-tck</module>-->
+<!--    <module>extra</module>-->
+<!--    <module>rest-tck</module>-->
     <module>optional-tck</module>
   </modules>
 
